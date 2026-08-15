@@ -6,7 +6,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         try:
             target = float(sys.argv[1])
-            bf.solve(target)
+            layers = int(sys.argv[2])
+            bf.solve(target,layers)
         except ValueError:
             print("Please provide a valid number")
     else:

@@ -4,34 +4,14 @@ operations = ['+', '-', '*', '/']
 nums = [0,1,2,3,4,5,6,7,8,9,10]
 
 found = False
-def solve(target):
-    dobfs(target)
-    # for i in range(1,6):
-    #     dobfs(i,target,f"{i}",depth=0)
+def solve(target,layers):
+    iterative_dfs(target,layers)
 
-
-def dodfs(inp,tar,opstr,depth=0):
-    global found
-    if depth == 5:
-        return
-    if found == True:
-        return
-    elif inp == tar:
-        found = True
-        print(opstr)
-        return
+    #dobfs(target)
     
-    if inp < 22:
-        dodfs(E**inp,tar,f"(e^({opstr}))",depth+1)
-    if inp>0:
-        dodfs(sqrt(inp),tar,f"sqrt({opstr})",depth+1)
-    for i in nums:
-        dodfs(inp+i,tar,f"({opstr}+{i})",depth+1)
-        dodfs(inp-i,tar,f"({opstr}-{i})",depth+1)
-        dodfs(inp*i,tar,f"({opstr}*{i})",depth+1)
-        if i != 0:
-            dodfs(inp/i,tar,f"({opstr}/{i})",depth+1)
-        
+    # for i in range(1,6):
+    #     dodfs(i,target,f"{i}",depth=0)
+
 
 def dobfs(target):
     queue = deque((i,target, f"{i}", 0) for i in nums)
@@ -113,3 +93,68 @@ def dobfs(target):
     
     print("Not Found")
     return
+
+def iterative_dfs(target,layers):
+    global found
+    
+    for i in range(1,layers+1): #layers
+        seen = {}
+        print("Layer : ",i)
+        for j in range(0,6): #initial nums
+            seen[j] = 0
+            exp = dodfs(j,target,f"{j}",seen, depth=0,depthlimit=i)
+            if exp != None:
+                print(exp)
+                return
+    print("Not Found")
+    return
+
+def dodfs(inp,tar,opstr,seen, depth=0,depthlimit=0):
+    if abs(inp - tar) < 0.0000000001:
+        return opstr
+    if depth >= depthlimit:
+        return None
+
+    def try_op(res, new_opstr):
+        next_depth = depth + 1
+        if res not in seen or next_depth < seen[res]:
+            seen[res] = next_depth
+            return dodfs(res, tar, new_opstr, seen, next_depth, depthlimit)
+        return None
+    
+    if inp < 22:
+        ret = try_op(E**inp, f"(e^({opstr}))")
+        if ret != None:
+            return ret
+    if inp > 0:
+        ret = try_op(sqrt(inp), f"sqrt({opstr})")
+        if ret != None:
+            return ret
+        ret = try_op(log(inp), f"log({opstr})")
+        if ret != None:
+            return ret
+    ret = try_op(sin(inp), f"sin({opstr})")
+    if ret != None:
+        return ret
+    ret = try_op(cos(inp), f"cos({opstr})")
+    if ret != None:
+        return ret
+    ret = try_op(tan(inp), f"tan({opstr})")
+    if ret != None:
+        return ret
+    for i in nums:
+        ret = try_op(inp + i, f"({opstr}+{i})")
+        if ret != None:
+            return ret
+        ret = try_op(inp - i, f"({opstr}-{i})")
+        if ret != None:
+            return ret
+        ret = try_op(inp * i, f"({opstr}*{i})")
+        if ret != None:
+            return ret
+        if i != 0:
+            ret = try_op(inp / i, f"({opstr}/{i})")
+            if ret != None:
+                return ret
+    return None
+        
