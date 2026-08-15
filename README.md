@@ -3,4 +3,5 @@ MathFinder is a project designed to discover mathematical expressions and approx
 Have completed:
 dfs bruteforce
 bfs bruteforce
+iterative deepening dfs
 beam search
