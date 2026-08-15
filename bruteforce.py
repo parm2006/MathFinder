@@ -1,10 +1,13 @@
 from collections import deque
+import heapq
 from math import sqrt, e as E,log,sin,cos,tan
 operations = ['+', '-', '*', '/'] 
 nums = [0,1,2,3,4,5,6,7,8,9,10]
 
 found = False
 def solve(target,layers):
+    #dobeam(target,layers)
+    
     iterative_dfs(target,layers)
 
     #dobfs(target)
@@ -12,84 +15,83 @@ def solve(target,layers):
     # for i in range(1,6):
     #     dodfs(i,target,f"{i}",depth=0)
 
+def dobeam(target,width): #dist, value,target,opstr,depth
+    min_heap = [(abs(i - target), i, target, f"{i}", 0) for i in nums]
+    heapq.heapify(min_heap)
+    seen = {round(i, 8) for i in nums}
+    while len(min_heap) != 0:
+        dist, inp, tar, opstr, depth = heapq.heappop(min_heap)
+        if depth == 5:
+            continue
+        elif dist <= 0.00000001:
+            print(opstr)
+            return
+        
+        def try_op(res, new_opstr):
+            r_res = round(res, 8)
+            if r_res not in seen:
+                seen.add(r_res)
+                d = abs(res - tar)
+                heapq.heappush(min_heap, (d, res, tar, new_opstr, depth + 1))
+                if len(min_heap) > width:
+                    worst_idx = max(range(len(min_heap)), key=lambda idx: min_heap[idx][0])
+                    worst_item = min_heap.pop(worst_idx)
+                    heapq.heapify(min_heap)
+                    seen.discard(round(worst_item[1], 8))
+        
+        if inp < 22:
+            try_op(E**inp, f"(e^({opstr}))")
+
+        if inp > 0:
+            try_op(sqrt(inp), f"sqrt({opstr})")
+
+            try_op(log(inp), f"log({opstr})")
+
+        try_op(sin(inp), f"sin({opstr})")
+        try_op(cos(inp), f"cos({opstr})")
+        try_op(tan(inp), f"tan({opstr})")
+        
+        for i in nums:
+            if i != 0:
+                try_op(inp / i, f"({opstr}/{i})")
+            try_op(inp + i, f"({opstr}+{i})")
+            try_op(inp - i, f"({opstr}-{i})")
+            try_op(inp * i, f"({opstr}*{i})")
+            
+    
+    print("Not Found")
+    return
 
 def dobfs(target):
     queue = deque((i,target, f"{i}", 0) for i in nums)
     seen = set()
-    count = 0
     while len(queue) != 0:
         inp,tar,opstr,depth = queue.popleft()
         if depth == 5:
             continue
         elif abs(inp - tar) < 0.0000000001:
             print(opstr)
-            print(count)
             return
         
+        def try_op(res, new_opstr):
+            if res not in seen:
+                seen.add(res)
+                queue.append((res, tar, new_opstr, depth + 1))
+
         if inp < 22:
-            res = E**inp
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"(e^({opstr}))",depth+1))
-        if inp>0:
-            res = sqrt(inp)
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"sqrt({opstr})",depth+1))
-            res = log(inp)
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"log({opstr})",depth+1))
-        res = sin(inp)
-        count+=1
-        if res not in seen:
-            count-=1
-            seen.add(res)
-            queue.append((res,tar,f"sin({opstr})",depth+1))
-        res = cos(inp)
-        count+=1
-        if res not in seen:
-            count-=1
-            seen.add(res)
-            queue.append((res,tar,f"cos({opstr})",depth+1))
-        res = tan(inp)
-        count+=1
-        if res not in seen:
-            count-=1
-            seen.add(res)
-            queue.append((res,tar,f"tan({opstr})",depth+1))
+            try_op(E**inp, f"(e^({opstr}))")
+        if inp > 0:
+            try_op(sqrt(inp), f"sqrt({opstr})")
+            try_op(log(inp), f"log({opstr})")
+        try_op(sin(inp), f"sin({opstr})")
+        try_op(cos(inp), f"cos({opstr})")
+        try_op(tan(inp), f"tan({opstr})")
         for i in nums:
-            res = inp+i
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"({opstr}+{i})",depth+1))
-            res = inp-i
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"({opstr}-{i})",depth+1))
-            res = inp*i
-            count+=1
-            if res not in seen:
-                count-=1
-                seen.add(res)
-                queue.append((res,tar,f"({opstr}*{i})",depth+1))
+            try_op(inp + i, f"({opstr}+{i})")
+            try_op(inp - i, f"({opstr}-{i})")
+            try_op(inp * i, f"({opstr}*{i})")
             if i != 0:
-                res = inp/i
-                count+=1
-                if res not in seen:
-                    count-=1
-                    seen.add(res)
-                    queue.append((res,tar,f"({opstr}/{i})",depth+1))
+                try_op(inp / i, f"({opstr}/{i})")
     
     print("Not Found")
     return
