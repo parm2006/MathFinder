@@ -1,5 +1,5 @@
 from collections import deque
-from math import sqrt, e as E
+from math import sqrt, e as E,log,sin,cos,tan
 operations = ['+', '-', '*', '/'] 
 nums = [0,1,2,3,4,5,6,7,8,9,10]
 
@@ -36,29 +36,80 @@ def dodfs(inp,tar,opstr,depth=0):
 def dobfs(target):
     queue = deque((i,target, f"{i}", 0) for i in nums)
     seen = set()
+    count = 0
     while len(queue) != 0:
         inp,tar,opstr,depth = queue.popleft()
-        if inp in seen:
-            continue
-        else:
-            seen.add(inp)
         if depth == 5:
             continue
-        elif abs(inp - tar) < 0.0001:
+        elif abs(inp - tar) < 0.0000000001:
             print(opstr)
+            print(count)
             return
         
         if inp < 22:
-            queue.append((E**inp,tar,f"(e^({opstr}))",depth+1))
+            res = E**inp
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"(e^({opstr}))",depth+1))
         if inp>0:
-            queue.append((sqrt(inp),tar,f"sqrt({opstr})",depth+1))
-        
+            res = sqrt(inp)
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"sqrt({opstr})",depth+1))
+            res = log(inp)
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"log({opstr})",depth+1))
+        res = sin(inp)
+        count+=1
+        if res not in seen:
+            count-=1
+            seen.add(res)
+            queue.append((res,tar,f"sin({opstr})",depth+1))
+        res = cos(inp)
+        count+=1
+        if res not in seen:
+            count-=1
+            seen.add(res)
+            queue.append((res,tar,f"cos({opstr})",depth+1))
+        res = tan(inp)
+        count+=1
+        if res not in seen:
+            count-=1
+            seen.add(res)
+            queue.append((res,tar,f"tan({opstr})",depth+1))
         for i in nums:
-            queue.append((inp+i,tar,f"({opstr}+{i})",depth+1))
-            queue.append((inp-i,tar,f"({opstr}-{i})",depth+1))
-            queue.append((inp*i,tar,f"({opstr}*{i})",depth+1))
+            res = inp+i
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"({opstr}+{i})",depth+1))
+            res = inp-i
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"({opstr}-{i})",depth+1))
+            res = inp*i
+            count+=1
+            if res not in seen:
+                count-=1
+                seen.add(res)
+                queue.append((res,tar,f"({opstr}*{i})",depth+1))
             if i != 0:
-                queue.append((inp/i,tar,f"({opstr}/{i})",depth+1))
+                res = inp/i
+                count+=1
+                if res not in seen:
+                    count-=1
+                    seen.add(res)
+                    queue.append((res,tar,f"({opstr}/{i})",depth+1))
     
     print("Not Found")
     return
